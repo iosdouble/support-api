@@ -1,3 +1,8 @@
 spring:
   profiles:
     active: druid
+mybatis:
+  type-aliases-package: com.zk.**.domain
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  config-location: classpath:mybatis/mybatis-config.xml
+

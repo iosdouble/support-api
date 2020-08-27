@@ -1,7 +1,9 @@
 package com.zk.szgh;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * @Classname SZGHMainApplication
@@ -12,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Description SZGHMainApplication @see support-api
  */
 @SpringBootApplication
+@EnableSwagger2
 public class SZGHMainApplication {
     public static void main(String[] args) {
         SpringApplication.run(SZGHMainApplication.class,args);
