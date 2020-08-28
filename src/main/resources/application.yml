@@ -6,3 +6,6 @@ mybatis:
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   config-location: classpath:mybatis/mybatis-config.xml
 
+wechat:
+  appid: wx469764462f0aa5de
+  appsecret: wx469764462f0aa5de
