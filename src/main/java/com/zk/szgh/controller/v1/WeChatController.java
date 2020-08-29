@@ -1,6 +1,13 @@
 package com.zk.szgh.controller.v1;
 
+import cn.binarywang.wx.miniapp.api.WxMaService;
+import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
+import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
+import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
+import cn.binarywang.wx.miniapp.config.WxMaConfig;
 import com.zk.szgh.annotation.PassToken;
+import com.zk.szgh.config.properties.WxMaConfiguration;
+import com.zk.szgh.utils.StringUtils;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -8,9 +15,7 @@ import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 
@@ -27,33 +32,52 @@ public class WeChatController {
 
     Logger log = LoggerFactory.getLogger(WeChatController.class);
 
-    @Autowired
-    private WxMpService wxMpService;
 
-    @GetMapping("/authorize")
-    @PassToken
-    public String authorize(@RequestParam("returnUrl") String returnUrl){
-        String url = "http://xxx.natapp.cn/wechat/userInfo";
-        String redirectURL = wxMpService.oauth2buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_USERINFO, URLEncoder.encode(returnUrl));
-        log.info("【微信网页授权】获取code,redirectURL={}", redirectURL);
-        return "redirect:" + redirectURL;
+    @Autowired
+    private WxMaService wxMaService;
+
+    /**
+     * 登陆验证工作
+     * @param code
+     */
+    @PostMapping("/login")
+    public void login(String code){
+        if (StringUtils.isBlank(code)){
+            new RuntimeException("Code 不能为空");
+        }
+        try {
+            WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
+            log.info(session.getSessionKey());
+            log.info(session.getOpenid());
+            //可以在下面加入其他逻辑
+        } catch (WxErrorException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * 获取用户信息
+     */
+    @GetMapping("/info")
+    public String info(String sessionKey,String signature, String rawData, String encryptedData, String iv) {
+        // 用户信息校验
+        if (!wxMaService.getUserService().checkUserInfo(sessionKey, rawData, signature)) {
+            return "user check failed";
+        }
+        // 解密用户信息
+        WxMaUserInfo userInfo = wxMaService.getUserService().getUserInfo(sessionKey, encryptedData, iv);
+
+        return "OK";
     }
 
-    @GetMapping("/userInfo")
-    public String userInfo(@RequestParam("code") String code,
-                           @RequestParam("state") String returnUrl) throws Exception {
-        log.info("【微信网页授权】code={}", code);
-        log.info("【微信网页授权】state={}", returnUrl);
-        WxMpOAuth2AccessToken wxMpOAuth2AccessToken;
-        try {
-            wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
-        } catch (WxErrorException e) {
-            log.info("【微信网页授权】{}", e);
-            throw new Exception(e.getError().getErrorMsg());
+    @GetMapping("/phone")
+    public String phone(String sessionKey, String signature, String rawData, String encryptedData, String iv) {
+        // 用户信息校验
+        if (!wxMaService.getUserService().checkUserInfo(sessionKey, rawData, signature)) {
+            return "user check failed";
         }
-        String openId = wxMpOAuth2AccessToken.getOpenId();
-        log.info("【微信网页授权】openId={}", openId);
-        return "redirect:" + returnUrl + "?openid=" + openId;
+        // 解密
+        WxMaPhoneNumberInfo phoneNoInfo = wxMaService.getUserService().getPhoneNoInfo(sessionKey, encryptedData, iv);
+        return "OK";
     }
 
 }

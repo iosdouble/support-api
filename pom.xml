@@ -136,12 +136,17 @@
             <artifactId>weixin-java-mp</artifactId>
             <version>3.7.0</version>
         </dependency>
-        <!--引入微信公众号API-->
+        <!--引入微信小程序API-->
         <!-- https://mvnrepository.com/artifact/com.github.binarywang/weixin-java-mp -->
         <dependency>
             <groupId>com.github.binarywang</groupId>
             <artifactId>weixin-java-miniapp</artifactId>
             <version>3.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.68</version>
         </dependency>
 
     </dependencies>
