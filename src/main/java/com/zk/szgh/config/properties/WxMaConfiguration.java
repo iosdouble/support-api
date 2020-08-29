@@ -5,6 +5,7 @@ import cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl;
 import cn.binarywang.wx.miniapp.bean.WxMaKefuMessage;
 import cn.binarywang.wx.miniapp.bean.WxMaTemplateData;
 import cn.binarywang.wx.miniapp.bean.WxMaTemplateMessage;
+import cn.binarywang.wx.miniapp.config.WxMaConfig;
 import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
 import cn.binarywang.wx.miniapp.message.WxMaMessageHandler;
 import cn.binarywang.wx.miniapp.message.WxMaMessageRouter;
@@ -29,56 +30,22 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableConfigurationProperties(WxMaProperties.class)
 public class WxMaConfiguration {
-    private WxMaProperties properties;
+    @Autowired
     private WechatAccountConfig wechatAccountConfig;
 
-    private static Map<String, WxMaMessageRouter> routers = Maps.newHashMap();
-    private static Map<String, WxMaService> maServices = Maps.newHashMap();
-
-    @Autowired
-    public WxMaConfiguration(WxMaProperties properties) {
-        this.properties = properties;
-    }
-
     @Bean
-    public WxMaService wxMaService(){
-        return getMaService(wechatAccountConfig.getAppid());
-    }
-
-    public static WxMaService getMaService(String appid) {
-        WxMaService wxService = maServices.get(appid);
+    public  WxMaService getMaService() {
+        WxMaService wxService = new WxMaServiceImpl();
+        WxMaDefaultConfigImpl wxMaConfig = new WxMaDefaultConfigImpl();
+        wxMaConfig.setAppid(wechatAccountConfig.getAppid());
+        wxMaConfig.setSecret(wechatAccountConfig.getAppsecret());
+        wxMaConfig.setToken(wechatAccountConfig.getToken());
+        wxMaConfig.setAesKey(wechatAccountConfig.getAesKey());
+        wxMaConfig.setMsgDataFormat(wechatAccountConfig.getMsgDataFormat());
         if (wxService == null) {
-            throw new IllegalArgumentException(String.format("未找到对应appid=[%s]的配置，请核实！", appid));
+            throw new IllegalArgumentException(String.format("未找到对应appid=[%s]的配置，请核实！", wechatAccountConfig.getAppid()));
         }
-
         return wxService;
-    }
-
-    public static WxMaMessageRouter getRouter(String appid) {
-        return routers.get(appid);
-    }
-
-    @PostConstruct
-    public void init() {
-        List<WxMaProperties.Config> configs = this.properties.getConfigs();
-        if (configs == null) {
-            throw new RuntimeException("大哥，拜托先看下项目首页的说明（readme文件），添加下相关配置，注意别配错了！");
-        }
-
-        maServices = configs.stream()
-            .map(a -> {
-                WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
-                config.setAppid(a.getAppid());
-                config.setSecret(a.getSecret());
-                config.setToken(a.getToken());
-                config.setAesKey(a.getAesKey());
-                config.setMsgDataFormat(a.getMsgDataFormat());
-
-                WxMaService service = new WxMaServiceImpl();
-                service.setWxMaConfig(config);
-                routers.put(a.getAppid(), this.newRouter(service));
-                return service;
-            }).collect(Collectors.toMap(s -> s.getWxMaConfig().getAppid(), a -> a));
     }
 
     private WxMaMessageRouter newRouter(WxMaService service) {

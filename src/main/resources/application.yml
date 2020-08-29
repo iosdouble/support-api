@@ -1,11 +1,16 @@
 spring:
   profiles:
     active: druid
+  redis:
+    host: localhost
+    port: 6379
 mybatis:
   type-aliases-package: com.zk.**.domain
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   config-location: classpath:mybatis/mybatis-config.xml
-
 wechat:
   appid: wx469764462f0aa5de
-  appsecret: wx469764462f0aa5de
+  secret: wx469764462f0aa5de
+  token: wx469764462f0aa5de
+  aesKey: wx469764462f0aa5de
+  msgDataFormat: JSON
