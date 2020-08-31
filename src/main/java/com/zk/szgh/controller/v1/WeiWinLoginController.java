@@ -94,12 +94,12 @@ public class WeiWinLoginController {
 //        return user;
 //    }
 
-    private JSONObject geuAuthInfo(String token) throws Exception {
+    private JSONObject geuAuthInfo(String code) throws Exception {
         Map<String, String> params = new HashMap<>();
         params.put("appid", "ad");
         params.put("secret", "aajajaj");
         params.put("grant_type", "authorization_code");
-        params.put("js_code", token);
+        params.put("js_code", code);
         String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
         String authString = HttpClientUtil.doGet(auth_url, params);
         if (StringUtils.isEmpty(authString)) {

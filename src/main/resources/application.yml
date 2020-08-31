@@ -9,8 +9,6 @@ mybatis:
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   config-location: classpath:mybatis/mybatis-config.xml
 wechat:
-  appid: wx469764462f0aa5de
-  secret: wx469764462f0aa5de
-  token: wx469764462f0aa5de
-  aesKey: wx469764462f0aa5de
+  appid: wxbe73ae03c5a67e77
+  appsecret: c134e8c325808e2ee15c85a8fdfb26a1
   msgDataFormat: JSON

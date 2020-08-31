@@ -5,8 +5,12 @@ import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import cn.binarywang.wx.miniapp.config.WxMaConfig;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zk.szgh.annotation.PassToken;
+import com.zk.szgh.annotation.UserLoginToken;
 import com.zk.szgh.config.properties.WxMaConfiguration;
+import com.zk.szgh.utils.HttpClientUtil;
 import com.zk.szgh.utils.StringUtils;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -18,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Classname WeChatController
@@ -27,7 +33,8 @@ import java.net.URLEncoder;
  * @Version 1.0
  * @Description WeChatController @see support-api
  */
-@RestController("/wechat")
+@RestController
+@RequestMapping("/wechat")
 public class WeChatController {
 
     Logger log = LoggerFactory.getLogger(WeChatController.class);
@@ -38,9 +45,9 @@ public class WeChatController {
 
     /**
      * 登陆验证工作
-     * @param code
      */
     @PostMapping("/login")
+    @PassToken
     public void login(String code){
         if (StringUtils.isBlank(code)){
             new RuntimeException("Code 不能为空");
@@ -78,6 +85,20 @@ public class WeChatController {
         // 解密
         WxMaPhoneNumberInfo phoneNoInfo = wxMaService.getUserService().getPhoneNoInfo(sessionKey, encryptedData, iv);
         return "OK";
+    }
+
+    private JSONObject geuAuthInfo(String code) throws Exception {
+        Map<String, String> params = new HashMap<>();
+        params.put("appid", "ad");
+        params.put("secret", "aajajaj");
+        params.put("grant_type", "authorization_code");
+        params.put("js_code", code);
+        String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
+        String authString = HttpClientUtil.doGet(auth_url, params);
+        if (org.apache.commons.lang3.StringUtils.isEmpty(authString)) {
+            throw new Exception("获取openid失败");
+        }
+        return JSON.parseObject(authString);
     }
 
 }

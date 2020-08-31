@@ -17,18 +17,14 @@ public class WechatAccountConfig {
 
     private String appid;
     private String appsecret;
-    private String token;
-    private String aesKey;
     private String msgDataFormat;
 
     public WechatAccountConfig() {
     }
 
-    public WechatAccountConfig(String appid, String appsecret, String token, String aesKey, String msgDataFormat) {
+    public WechatAccountConfig(String appid, String appsecret, String msgDataFormat) {
         this.appid = appid;
         this.appsecret = appsecret;
-        this.token = token;
-        this.aesKey = aesKey;
         this.msgDataFormat = msgDataFormat;
     }
 
@@ -46,22 +42,6 @@ public class WechatAccountConfig {
 
     public void setAppsecret(String appsecret) {
         this.appsecret = appsecret;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getAesKey() {
-        return aesKey;
-    }
-
-    public void setAesKey(String aesKey) {
-        this.aesKey = aesKey;
     }
 
     public String getMsgDataFormat() {
