@@ -4,18 +4,12 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
-import cn.binarywang.wx.miniapp.config.WxMaConfig;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zk.szgh.annotation.PassToken;
-import com.zk.szgh.annotation.UserLoginToken;
-import com.zk.szgh.config.properties.WxMaConfiguration;
 import com.zk.szgh.utils.HttpClientUtil;
 import com.zk.szgh.utils.StringUtils;
-import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
-import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,13 +83,13 @@ public class WeChatController {
 
     private JSONObject geuAuthInfo(String code) throws Exception {
         Map<String, String> params = new HashMap<>();
-        params.put("appid", "ad");
-        params.put("secret", "aajajaj");
+        params.put("appid", "wxbe73ae03c5a67e77");
+        params.put("secret", "c134e8c325808e2ee15c85a8fdfb26a1");
         params.put("grant_type", "authorization_code");
         params.put("js_code", code);
         String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
         String authString = HttpClientUtil.doGet(auth_url, params);
-        if (org.apache.commons.lang3.StringUtils.isEmpty(authString)) {
+        if (StringUtils.isEmpty(authString)) {
             throw new Exception("获取openid失败");
         }
         return JSON.parseObject(authString);

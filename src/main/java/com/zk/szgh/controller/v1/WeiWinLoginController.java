@@ -96,8 +96,8 @@ public class WeiWinLoginController {
 
     private JSONObject geuAuthInfo(String code) throws Exception {
         Map<String, String> params = new HashMap<>();
-        params.put("appid", "ad");
-        params.put("secret", "aajajaj");
+        params.put("appid", "wxbe73ae03c5a67e77");
+        params.put("secret", "c134e8c325808e2ee15c85a8fdfb26a1");
         params.put("grant_type", "authorization_code");
         params.put("js_code", code);
         String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
