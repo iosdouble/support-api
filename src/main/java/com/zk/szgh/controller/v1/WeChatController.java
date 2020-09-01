@@ -7,8 +7,10 @@ import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zk.szgh.annotation.PassToken;
+import com.zk.szgh.bean.vo.LoginUser;
 import com.zk.szgh.utils.HttpClientUtil;
 import com.zk.szgh.utils.StringUtils;
+import com.zk.szgh.utils.json.JsonUtil;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,28 +35,54 @@ public class WeChatController {
 
     Logger log = LoggerFactory.getLogger(WeChatController.class);
 
-
     @Autowired
     private WxMaService wxMaService;
 
     /**
      * 登陆验证工作
      */
+
     @PostMapping("/login")
     @PassToken
-    public void login(String code){
-        if (StringUtils.isBlank(code)){
+    public void login(@RequestBody LoginUser loginUser){
+        String s = JsonUtil.toJson(loginUser);
+        System.out.println(s);
+        if (StringUtils.isBlank(loginUser.getCode())){
             new RuntimeException("Code 不能为空");
         }
         try {
-            WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
+            WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(loginUser.getCode());
             log.info(session.getSessionKey());
             log.info(session.getOpenid());
+            // 用户信息校验
+            if (!wxMaService.getUserService().checkUserInfo(session.getSessionKey(), loginUser.getRawData(), loginUser.getSignature())) {
+                return ;
+            }
+            WxMaUserInfo userInfo = wxMaService.getUserService().getUserInfo(session.getSessionKey(), loginUser.getEncrypteData(), loginUser.getIv());
+            System.out.println(userInfo.getNickName());
+            System.out.println(userInfo.getOpenId());
+            System.out.println(userInfo.getCity());
             //可以在下面加入其他逻辑
         } catch (WxErrorException e) {
             e.printStackTrace();
         }
     }
+
+//    @PostMapping("/login")
+//    @PassToken
+//    public void login(String code){
+//        if (StringUtils.isBlank(code)){
+//            new RuntimeException("Code 不能为空");
+//        }
+//        try {
+//            WxMaJscode2SessionResult session = wxMaService.getUserService().getSessionInfo(code);
+//            log.info(session.getSessionKey());
+//            log.info(session.getOpenid());
+//            //可以在下面加入其他逻辑
+//        } catch (WxErrorException e) {
+//            e.printStackTrace();
+//        }
+//    }
     /**
      * 获取用户信息
      */
@@ -81,18 +109,5 @@ public class WeChatController {
         return "OK";
     }
 
-    private JSONObject geuAuthInfo(String code) throws Exception {
-        Map<String, String> params = new HashMap<>();
-        params.put("appid", "wxbe73ae03c5a67e77");
-        params.put("secret", "c134e8c325808e2ee15c85a8fdfb26a1");
-        params.put("grant_type", "authorization_code");
-        params.put("js_code", code);
-        String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
-        String authString = HttpClientUtil.doGet(auth_url, params);
-        if (StringUtils.isEmpty(authString)) {
-            throw new Exception("获取openid失败");
-        }
-        return JSON.parseObject(authString);
-    }
 
 }
