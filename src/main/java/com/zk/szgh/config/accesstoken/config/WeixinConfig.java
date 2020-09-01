@@ -1,6 +1,5 @@
-package com.zk.szgh.config;
+package com.zk.szgh.config.accesstoken.config;
 
-import com.zk.szgh.config.properties.WechatAccountConfig;
 import me.chanjar.weixin.mp.api.WxMpCardService;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.impl.WxMpCardServiceImpl;
@@ -10,21 +9,20 @@ import me.chanjar.weixin.mp.config.impl.WxMpDefaultConfigImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 /**
- * @Classname WeChatMpConfig
+ * @Classname WeixinConfig
  * @Description TODO
- * @Date 2020/8/27 10:33 AM
+ * @Date 2020/8/14 3:12 PM
  * @Created by nihui
  * @Version 1.0
- * @Description WeChatMpConfig @see support-api
+ * @Description WeixinConfig @see ruoyi
  */
 @Configuration
-public class WeChatMpConfig {
+public class WeixinConfig {
 
     @Autowired
-    private WechatAccountConfig accountConfig;
+    private WeixinProperties weixinProperties;
 
     @Bean
     public WxMpService wxMpService(){
@@ -34,16 +32,15 @@ public class WeChatMpConfig {
     }
 
     @Bean
+    public WxMpConfigStorage wxMpConfigStorage(){
+        WxMpDefaultConfigImpl wxMpDefaultConfig = new WxMpDefaultConfigImpl();
+        wxMpDefaultConfig.setAppId(weixinProperties.getAppid());
+        wxMpDefaultConfig.setSecret(weixinProperties.getSecret());
+        return wxMpDefaultConfig;
+    }
+    @Bean
     public WxMpCardService wxMpCardService(){
         WxMpCardService wxMpCardService = new WxMpCardServiceImpl(wxMpService());
         return wxMpCardService;
-    }
-
-    @Bean
-    public WxMpConfigStorage wxMpConfigStorage(){
-        WxMpDefaultConfigImpl wxMpDefaultConfig = new WxMpDefaultConfigImpl();
-        wxMpDefaultConfig.setAppId(accountConfig.getAppid());
-        wxMpDefaultConfig.setSecret(accountConfig.getAppsecret());
-        return wxMpDefaultConfig;
     }
 }
