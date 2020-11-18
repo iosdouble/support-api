@@ -12,6 +12,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -27,6 +29,7 @@ import java.util.Map;
  * @Description WeiWinLoginController @see support-api
  */
 @RestController
+@RequestMapping("/api")
 public class WeiWinLoginController {
     private static final Logger logger = LoggerFactory.getLogger(WeiWinLoginController.class);
 
@@ -36,6 +39,21 @@ public class WeiWinLoginController {
     @Autowired
     private RedisUtil redisUtil;
 
+
+    @GetMapping("/login")
+    public JSONObject geuAuthInfo(String code) throws Exception {
+        Map<String, String> params = new HashMap<>();
+        params.put("appid", "wxbe73ae03c5a67e77");
+        params.put("secret", "c134e8c325808e2ee15c85a8fdfb26a1");
+        params.put("grant_type", "authorization_code");
+        params.put("js_code", code);
+        String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
+        String authString = HttpClientUtil.doGet(auth_url, params);
+        if (StringUtils.isEmpty(authString)) {
+            throw new Exception("获取openid失败");
+        }
+        return JSON.parseObject(authString);
+    }
 
 
 //
@@ -94,17 +112,5 @@ public class WeiWinLoginController {
 //        return user;
 //    }
 
-    private JSONObject geuAuthInfo(String code) throws Exception {
-        Map<String, String> params = new HashMap<>();
-        params.put("appid", "wxbe73ae03c5a67e77");
-        params.put("secret", "c134e8c325808e2ee15c85a8fdfb26a1");
-        params.put("grant_type", "authorization_code");
-        params.put("js_code", code);
-        String auth_url = "https://api.weixin.qq.com/sns/jscode2session";
-        String authString = HttpClientUtil.doGet(auth_url, params);
-        if (StringUtils.isEmpty(authString)) {
-            throw new Exception("获取openid失败");
-        }
-        return JSON.parseObject(authString);
-    }
+
 }

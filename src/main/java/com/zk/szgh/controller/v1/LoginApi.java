@@ -26,7 +26,7 @@ import java.util.Date;
  * @Description LoginApi @see support-api
  */
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api")
 public class LoginApi {
 
     @Autowired
